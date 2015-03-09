@@ -234,6 +234,7 @@ def create_domain(domain, password=None, version="3"):
         create_venv("venv", version)
 
         run("chmod 775 ~/")
+        files.append(filename=".bashrc", text="umask 002")
 
         # Create site folder
         run("mkdir site-dir")
