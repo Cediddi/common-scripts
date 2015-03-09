@@ -265,10 +265,10 @@ def create_domain(domain, password=None, version="3"):
         nginx.enable(env.user)
 
         if unix_p == password:
-            psql_u, psql_p, psql_n = create_pgsql_user(username=env.user.replace(".", "_"),
+            psql_u, psql_p, psql_n = create_pgsql_user(username=env.user,
                                                        password=password)
         else:
-            psql_u, psql_p, psql_n = create_pgsql_user(username=env.user.replace(".", "_"))
+            psql_u, psql_p, psql_n = create_pgsql_user(username=env.user)
 
         files.append("README.txt", README_FILE.format(
             user_unix=unix_u,
