@@ -81,6 +81,9 @@ NGINX_CONF = "\n".join([
     "  location /static {{",
     "      alias /home/{domain}/site-dir/staticfiles;",
     "  }}",
+    "  location /media {{",
+    "      alias /home/{domain}/site-dir/media;",
+    "  }}",
     "  location / {{",
     "      uwsgi_pass {domain};",
     "  include uwsgi_params;",
@@ -103,6 +106,7 @@ README_FILE = "\n".join([
     "  application = app",
     "",
     "staticfiles folder in site-dir is served by nginx as /static",
+    "media folder in site-dir is served by nginx as /media",
     "uwsgi.ini file is for uwsgi configuration and dynamic",
     "nginx configuration is at /etc/nginx/sites-enabled",
 ])
