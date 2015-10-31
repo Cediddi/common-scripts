@@ -49,7 +49,7 @@ USAGE = "\n".join([
     "",
     c.red("$", bold=True)+" "+c.blue("fab connect:ip=11.22.33.44 reload_services:nginx"),
     c.green("This will reload given services"),
-    c.green("  When no argument is given it'll reload nginx and uwsgi-emperor"),
+    c.green("  When no argument is given it'll reload nginx and uwsgi"),
     "",
 ])
 
@@ -60,6 +60,10 @@ UWSGI_INI = "\n".join([
     "uid = {domain}",
     "gid = www-data",
     "processes = 2",
+    "threads = 4",
+    "max-requests = 50",
+    "enable-threads = true",
+    "single-interpreter = true",
     "venv = /home/{domain}/venv",
     "chdir = /home/{domain}/site-dir",
     "daemonize = /home/{domain}/uwsgi.log",
@@ -151,7 +155,7 @@ def setup_server():
     service.restart("ssh")
 
     deb.upgrade()
-    deb.install(["nginx", "uwsgi", "uwsgi-emperor", "uwsgi-plugin-python",
+    deb.install(["nginx", "uwsgi", "uwsgi-plugin-python",
                  "uwsgi-plugin-python3", "libpq-dev", "postgresql",
                  "postgresql-contrib", "python-virtualenv", "python-dev",
                  "python3-dev"], update=True)
@@ -260,7 +264,11 @@ def create_domain(domain, password=None, version="3"):
         files.append("uwsgi.ini", UWSGI_INI.format(
             domain=env.user, plugins=", ".join(uwsgi_plugins)))
         files2.symlink("/home/{user}/uwsgi.ini".format(user=env.user),
-                       "/etc/uwsgi-emperor/vassals/{user}.ini".format(
+                       "/etc/uwsgi/apps-available/{user}.ini".format(
+                           user=env.user), use_sudo=True)
+        files2.symlink("/etc/uwsgi/apps-available/{user}.ini".format(
+                           user=env.user),
+                       "/etc/uwsgi/apps-enabled/{user}.ini".format(
                            user=env.user), use_sudo=True)
 
         # Create nginx config file and enable
@@ -292,7 +300,7 @@ def push_key(key_file=path.expanduser('~/.ssh/id_rsa.pub')):
 @task
 def reload_services(*apps):
     if len(apps) == 0:
-        apps = ["nginx", "uwsgi-emperor"]
+        apps = ["nginx", "uwsgi"]
     map(service.reload, apps)
 
 
